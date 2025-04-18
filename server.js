@@ -3,12 +3,14 @@ const WebSocket = require('ws');
 const chalk = require('chalk');
 const constructXML = require('./src/junitFormatter');
 const { writeFileSync } = require('fs');
+const takeScreenshot = require('./src/screenshot');
 
 // Initialize a server
 const server = http.createServer();
 
 // Setup local variables for server
 server.locals = {
+  platform: undefined,
   appBooted: false,
   testCount: 0
 };
@@ -30,7 +32,7 @@ wss.on('connection', socket => {
 
     switch(json.event) {
       case 'notify':
-        onNotify();
+        onNotify(true);
         break;
       case 'message':
         logMessage(json.data);
@@ -84,12 +86,16 @@ function logMessage(json) {
   }
 }
 
-function onNotify() {
+function onNotify(screenshot = false) {
   console.log(chalk.white(`[${new Date().toLocaleTimeString()}] Received notification.`));
   lastNotify = Date.now();
   clearTimeout(timeout);
+  if (screenshot) {
+    takeScreenshot(server.locals.platform);
+  }
   timeout = setTimeout(() => {
     console.log(chalk.red("Did not receive a keep-alive notification in time - app may have crashed."));
+    takeScreenshot(server.locals.platform);
     process.exit(1);
   }, KEEP_ALIVE_TIMEOUT);
 }

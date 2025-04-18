@@ -59,6 +59,7 @@ function getAdbPath() {
 // Start test server, listening for test results to be posted.
 function runServer({ command, dev, outputAsXml, skipbuild, bootTimeout }) {
   server.locals.dev = dev;
+  server.locals.platform = command == 'run-android' ? 'android' : 'ios';
   server.locals.outputAsXml = outputAsXml;
   server.listen(8082, () => {
     if (command == 'run-android') {
