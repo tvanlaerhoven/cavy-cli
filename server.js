@@ -24,6 +24,9 @@ wss.on('connection', socket => {
     const json = JSON.parse(message);
 
     switch(json.event) {
+      case 'message':
+        logMessage(json.data);
+        break;
       case 'singleResult':
         logTestResult(json.data);
         break;
@@ -61,6 +64,16 @@ function logTestResult(testResultJson) {
     console.log(chalk.red(formattedMessage));
   }
 };
+
+function logMessage(json) {
+  const { message, level } = json;
+  switch (level) {
+    case 'log': console.log(chalk.white(message)); break;
+    case 'debug': console.log(chalk.yellow(message)); break;
+    case 'warn': console.log(chalk.bgYellow(message)); break;
+	  case 'error': console.log(chalk.red(message)); break;
+  }
+}
 
 // Internal: Accepts a json report object, console.logs the overall result of
 // the test suite and quits the process with either exit code 1 or 0 depending
