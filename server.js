@@ -67,6 +67,8 @@ function logTestResult(testResultJson) {
   server.locals.testCount++ ;
   formattedMessage = `${server.locals.testCount}) ${message}`;
 
+  takeScreenshot(server.locals.platform);
+
   if (passed) {
     // Log green test result if test passed
     console.log(chalk.green(formattedMessage));
