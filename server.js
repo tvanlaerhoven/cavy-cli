@@ -16,7 +16,7 @@ server.locals = {
 // Initialize a WebSocket Server instance
 const wss = new WebSocket.Server({server});
 
-const KEEP_ALIVE_TIMEOUT = 20_000;
+const KEEP_ALIVE_TIMEOUT = 60_000;
 let lastNotify = Date.now();
 let timeout;
 
@@ -85,7 +85,7 @@ function logMessage(json) {
 }
 
 function onNotify() {
-  console.log(chalk.white("Received notification."));
+  console.log(chalk.white(`[${new Date().toLocaleTimeString()}] Received notification.`));
   lastNotify = Date.now();
   clearTimeout(timeout);
   timeout = setTimeout(() => {
