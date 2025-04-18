@@ -16,6 +16,10 @@ server.locals = {
 // Initialize a WebSocket Server instance
 const wss = new WebSocket.Server({server});
 
+const KEEP_ALIVE_TIMEOUT = 20_000;
+let lastNotify = Date.now();
+let timeout;
+
 // When the web socket server receives a connection request, we configure
 // the desired behaviour for the socket.
 wss.on('connection', socket => {
@@ -25,6 +29,9 @@ wss.on('connection', socket => {
     const json = JSON.parse(message);
 
     switch(json.event) {
+      case 'notify':
+        onNotify();
+        break;
       case 'message':
         logMessage(json.data);
         break;
@@ -39,6 +46,7 @@ wss.on('connection', socket => {
 
   // Now we have made a connection with Cavy, we know the app has booted.
   server.locals.appBooted = true;
+  onNotify();
 })
 
 // Internal: Takes a count and string, returns formatted and pluralized string.
@@ -64,7 +72,7 @@ function logTestResult(testResultJson) {
     // Log red test result if test failed
     console.log(chalk.red(formattedMessage));
   }
-};
+}
 
 function logMessage(json) {
   const { message, level } = json;
@@ -74,6 +82,16 @@ function logMessage(json) {
     case 'warn': console.log(chalk.bgYellow(message)); break;
 	  case 'error': console.log(chalk.red(message)); break;
   }
+}
+
+function onNotify() {
+  console.log(chalk.white("Received notification."));
+  lastNotify = Date.now();
+  clearTimeout(timeout);
+  timeout = setTimeout(() => {
+    console.log(chalk.red("Did not receive a keep-alive notification in time - app may have crashed."));
+    process.exit(1);
+  }, KEEP_ALIVE_TIMEOUT);
 }
 
 // Internal: Accepts a json report object, console.logs the overall result of
@@ -111,7 +129,7 @@ function finishTesting(reportJson) {
     }
   }
   console.log('--------------------');
-};
+}
 
 function constructMarkdown(results) {
   const filename = 'cavy_results.md';
@@ -123,6 +141,6 @@ function constructMarkdown(results) {
     results.testCases.map((result) => `|${result.description}|${result.passed ? `✅` : `❌`}|${result.time}s|`).join('\n');
 
   writeFileSync(filename, data);
-};
+}
 
 module.exports = server;
