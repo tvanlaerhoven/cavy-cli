@@ -2,6 +2,7 @@ const http = require('http');
 const WebSocket = require('ws');
 const chalk = require('chalk');
 const constructXML = require('./src/junitFormatter');
+const { writeFileSync } = require('fs');
 
 // Initialize a server
 const server = http.createServer();
@@ -93,6 +94,7 @@ function finishTesting(reportJson) {
   if (server.locals.outputAsXml) {
     constructXML(fullResults);
   }
+  constructMarkdown(fullResults);
 
   // If all tests pass, exit with code 0, else code 42.
   // Code 42 chosen at random so that a test failure can be distinuguished from
@@ -109,6 +111,18 @@ function finishTesting(reportJson) {
     }
   }
   console.log('--------------------');
+};
+
+function constructMarkdown(results) {
+  const filename = 'cavy_results.md';
+  console.log(`Writing results to ${filename}`);
+  const data =
+    `### E2E Test Summary\n` +
+    `|Description 📝|Test results 🧪|Duration ⏰|\n` +
+    `|---|---|---|\n` +
+    results.testCases.map((result) => `|${result.description}|${result.passed ? `✅` : `❌`}|${result.time}s|`).join('\n');
+
+  writeFileSync(filename, data);
 };
 
 module.exports = server;
