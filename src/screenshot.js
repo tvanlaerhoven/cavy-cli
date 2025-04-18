@@ -1,5 +1,5 @@
 const { exec } = require('child_process');
-const fs = require('fs');
+const path = require('path');
 
 function takeScreenshot(platform) {
   const filename = `screenshot_${Date.now()}.png`;
@@ -10,7 +10,7 @@ function takeScreenshot(platform) {
         console.error(`Error taking screenshot: ${error.message}`);
         return;
       }
-      console.log(`Android screenshot saved as ${filename}`);
+      console.log(`Android screenshot saved as ${path.resolve(filename)}`);
     });
   } else {
     exec(`xcrun simctl io booted screenshot ${filename}`, (error, stdout, stderr) => {
@@ -18,7 +18,7 @@ function takeScreenshot(platform) {
         console.error(`Error taking screenshot: ${error.message}`);
         return;
       }
-      console.log(`iOS screenshot saved as ${filename}`);
+      console.log(`iOS screenshot saved as ${path.resolve(filename)}`);
     });
   }
 }
