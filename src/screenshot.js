@@ -18,7 +18,7 @@ function takeScreenshot(platform) {
       console.log(`Android screenshot saved as ${fullPath}`);
     });
   } else {
-    exec(`xcrun simctl io booted screenshot ${filename}`, (error, stdout, stderr) => {
+    exec(`xcrun simctl io booted screenshot ${fullPath}`, (error, stdout, stderr) => {
       if (error) {
         console.error(`Error taking screenshot: ${error.message}`);
         return;
